@@ -1,7 +1,7 @@
 package com.prometheus.gaidar.expandable;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.ExpandableListView;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ExpandableListView expandableListView = findViewById(R.id.expandableListView);
-        CustomExpandableListAdapter adapter = new CustomExpandableListAdapter(this, prepareData());
+        CustomExpandableListAdapter adapter = new CustomExpandableListAdapter(this, prepareData(), expandableListView);
         expandableListView.setAdapter(adapter);
     }
 
@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < 5; i++) {
             PlayerAds playerAds = new PlayerAds();
             List<PlayerAdsItem> items = new ArrayList<>();
-            for (int j = 0; j < 4; j++) {
+            for (int j = 0; j < 3; j++) {
                 items.add(new PlayerAdsItem());
             }
             PlayerAdsGroup group = new PlayerAdsGroup(playerAds, items);

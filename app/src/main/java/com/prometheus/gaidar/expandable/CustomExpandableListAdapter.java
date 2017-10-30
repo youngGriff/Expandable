@@ -1,8 +1,6 @@
 package com.prometheus.gaidar.expandable;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,11 +17,26 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 
     private Context context;
     private List<PlayerAdsGroup> allItems;
+    private ExpandableListView expandableListView;
+    private boolean isLight = false;
 
-
-    public CustomExpandableListAdapter(Context context, List<PlayerAdsGroup> expandableListTitle) {
+    public CustomExpandableListAdapter(Context context, List<PlayerAdsGroup> expandableListTitle, ExpandableListView list) {
         this.context = context;
         this.allItems = expandableListTitle;
+        expandableListView = list;
+        expandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
+            @Override
+            public void onGroupCollapse(int groupPosition) {
+                isLight = false;
+                notifyDataSetChanged();
+            }
+        });
+        expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+            @Override
+            public void onGroupExpand(int groupPosition) {
+                isLight = false;
+            }
+        });
 
 
     }
@@ -58,12 +71,8 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 //        for (int i = 0; i < listPosition + 1; i++) {
 //            result += getChildrenCount(i);
 //        }
-
-        if (result % 2 == 0) {
-            convertView.setBackgroundResource(R.color.colorPrimary);
-        } else {
-            convertView.setBackgroundResource(R.color.colorPrimaryDark);
-        }
+        if (expandableListView.isGroupExpanded(listPosition))
+            updateColors(convertView);
 
 
         TextView genreName = (TextView) convertView.findViewById(R.id.player_name);
@@ -111,8 +120,7 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 
 
         final TextView pitchAll = convertView.findViewById(R.id.pitch_btn);
-
-
+        updateColors(convertView);
         final ImageView arrowImage = convertView.findViewById(R.id.arrow_image);
 
         Log.i("devoloTEst", "getGroupView: " + listPosition);
@@ -121,32 +129,6 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
         if (isExpanded) {
             result += getChildrenCount(listPosition);
         }
-        if (listPosition % 2 == 0) {
-            mainContainer.setBackgroundResource(R.color.player_dark_bg);
-        } else {
-            mainContainer.setBackgroundResource(R.color.player_light_bg);
-        }
-
-
-        pitchAll.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isExpanded) {
-                    ((ExpandableListView) parent).collapseGroup(listPosition);
-
-                    arrowImage.setColorFilter(context.getResources().getColor(R.color.colorPrimaryDark), PorterDuff.Mode.MULTIPLY);
-                    pitchAll.setTextColor(ContextCompat.getColor(context, R.color.colorPrimaryDark));
-
-
-                } else {
-                    ((ExpandableListView) parent).expandGroup(listPosition, true);
-                    pitchAll.setTextColor(ContextCompat.getColor(context, android.R.color.white));
-                    arrowImage.setColorFilter(context.getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
-
-                }
-
-            }
-        });
 
 
         return convertView;
@@ -167,4 +149,17 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
         notifyDataSetChanged();
     }
 
+
+    private void updateColors(View mainContainer) {
+
+        if (isLight) {
+            mainContainer.setBackgroundResource(R.color.player_dark_bg);
+        } else {
+            mainContainer.setBackgroundResource(R.color.player_light_bg);
+        }
+        isLight = !isLight;
+    }
+
+
 }
+
