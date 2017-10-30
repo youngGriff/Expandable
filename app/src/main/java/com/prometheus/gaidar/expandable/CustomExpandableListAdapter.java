@@ -35,6 +35,7 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
             @Override
             public void onGroupExpand(int groupPosition) {
                 isLight = false;
+                notifyDataSetChanged();
             }
         });
 
