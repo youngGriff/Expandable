@@ -10,6 +10,7 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -19,32 +20,41 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
     private List<PlayerAdsGroup> allItems;
     private ExpandableListView expandableListView;
     private boolean isLight = false;
+    List<Boolean> groupState = new ArrayList<>();
+    List<List<Boolean>> childState = new ArrayList<>();
 
-    public CustomExpandableListAdapter(Context context, List<PlayerAdsGroup> expandableListTitle, ExpandableListView list) {
+
+    public CustomExpandableListAdapter(Context context, ExpandableListView list) {
         this.context = context;
-        this.allItems = expandableListTitle;
+        allItems = new ArrayList<>();
         expandableListView = list;
         expandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
             @Override
             public void onGroupCollapse(int groupPosition) {
-                isLight = false;
-                notifyDataSetChanged();
+                refresh();
             }
         });
+
         expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
             @Override
             public void onGroupExpand(int groupPosition) {
-                isLight = false;
-                notifyDataSetChanged();
+                refresh();
             }
         });
 
 
     }
 
+    private void refresh() {
+        isLight = false;
+        updateState();
+        notifyDataSetChanged();
+    }
+
 
     @Override
     public Object getChild(int listPosition, int expandedListPosition) {
+        Log.i("debug", "child has been got " + expandedListPosition + " parent pos is" + listPosition);
         return this.allItems.get(listPosition).getItems().get(expandedListPosition);
     }
 
@@ -73,7 +83,7 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 //            result += getChildrenCount(i);
 //        }
         if (expandableListView.isGroupExpanded(listPosition))
-            updateColors(convertView);
+            setChildColors(convertView, listPosition, expandedListPosition);
 
 
         TextView genreName = (TextView) convertView.findViewById(R.id.player_name);
@@ -92,6 +102,7 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Object getGroup(int listPosition) {
+        Log.i("debug", "Group is " + listPosition);
         return this.allItems.get(listPosition).getPlayerAds();
     }
 
@@ -121,7 +132,7 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 
 
         final TextView pitchAll = convertView.findViewById(R.id.pitch_btn);
-        updateColors(convertView);
+        setGroupColors(convertView, listPosition);
         final ImageView arrowImage = convertView.findViewById(R.id.arrow_image);
 
         Log.i("devoloTEst", "getGroupView: " + listPosition);
@@ -147,20 +158,53 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 
     public void setData(List<PlayerAdsGroup> expandableListTitle) {
         this.allItems = expandableListTitle;
-        notifyDataSetChanged();
+
+        refresh();
     }
 
 
-    private void updateColors(View mainContainer) {
+    private void updateState() {
+        groupState.clear();
+        childState.clear();
 
-        if (isLight) {
-            mainContainer.setBackgroundResource(R.color.player_dark_bg);
-        } else {
-            mainContainer.setBackgroundResource(R.color.player_light_bg);
+        for (int i = 0; i < getGroupCount(); i++) {
+            groupState.add(toogleLight());
+            childState.add(new ArrayList<Boolean>());
+            if (expandableListView.isGroupExpanded(i)) {
+                for (int j = 0; j < getChildrenCount(i); j++) {
+                    childState.get(i).add(toogleLight());
+                }
+            }
         }
-        isLight = !isLight;
     }
 
+    private boolean toogleLight() {
+        isLight = !isLight;
+        return isLight;
+    }
+
+    private void setGroupColors(View mainContainer, int pos) {
+        boolean isLight = groupState.get(pos);
+        if (isLight) {
+            mainContainer.setBackgroundResource(R.color.player_light_bg);
+        } else {
+
+            mainContainer.setBackgroundResource(R.color.player_dark_bg);
+        }
+
+    }
+
+    private void setChildColors(View mainContainer, int parentPos, int childPos) {
+        boolean isLight = childState.get(parentPos).get(childPos);
+        if (isLight) {
+            mainContainer.setBackgroundResource(R.color.player_light_bg);
+        } else {
+
+            mainContainer.setBackgroundResource(R.color.player_dark_bg);
+        }
+    }
 
 }
+
+
 

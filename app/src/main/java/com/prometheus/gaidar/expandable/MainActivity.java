@@ -14,8 +14,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ExpandableListView expandableListView = findViewById(R.id.expandableListView);
-        CustomExpandableListAdapter adapter = new CustomExpandableListAdapter(this, prepareData(), expandableListView);
+        CustomExpandableListAdapter adapter = new CustomExpandableListAdapter(this, expandableListView);
         expandableListView.setAdapter(adapter);
+        adapter.setData(prepareData());
     }
 
     private List<PlayerAdsGroup> prepareData() {
